@@ -1,0 +1,20 @@
+{
+    "name": "nimayneb/repop",
+    "license": "GPL-3.0-or-later",
+    "type": "library",
+    "version": "1.0.0",
+    "description": "Repository Operator - Small Library for CRUD operations with PDO in a model context.",
+    "keywords": ["repository", "model", "pdo", "database", "crud"],
+    "autoload": {
+        "psr-4": {
+            "JayBeeR\\Repop\\": "Classes/"
+        }
+    },
+    "require": {
+        "php": "^7.2",
+        "doctrine/dbal": "^2.10",
+        "helhum/dotenv-connector": "^2.1",
+        "ext-PDO": "^7.2",
+        "ext-pdo_mysql": "^7.2"
+    }
+}
