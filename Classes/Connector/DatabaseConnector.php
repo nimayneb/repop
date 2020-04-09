@@ -70,23 +70,35 @@
         }
 
         /**
-         *
+         * @param string|null $driver
+         * @param string|null $hostname
+         * @param string|null $port
+         * @param string|null $database
+         * @param string|null $username
+         * @param string|null $password
          */
-        public function connectToDatabase()
+        public function connectToDatabase(
+            string $driver = null,
+            string $hostname = null,
+            string $port = null,
+            string $database = null,
+            string $username = null,
+            string $password = null
+        )
         {
             $dsn = sprintf(
                 '%s:host=%s;port=%d;dbname=%s',
-                getenv('DATABASE_DRIVER'),
-                getenv('DATABASE_HOSTNAME'),
-                getenv('DATABASE_PORT'),
-                getenv('DATABASE_NAME')
+                $driver ?? getenv('DATABASE_DRIVER'),
+                $hostname ?? getenv('DATABASE_HOSTNAME'),
+                $port ?? getenv('DATABASE_PORT'),
+                $database ?? getenv('DATABASE_NAME')
             );
 
             try {
                 $this->connection = new PDO(
                     $dsn,
-                    getenv('DATABASE_USERNAME'),
-                    getenv('DATABASE_PASSWORD')
+                    $username ?? getenv('DATABASE_USERNAME'),
+                    $password ?? getenv('DATABASE_PASSWORD')
                 );
 
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
