@@ -52,7 +52,7 @@
          *
          * @return Generator
          */
-        public function commitToModelObjects(PDOStatement $statement): Generator
+        public function iterate(PDOStatement $statement): Generator
         {
             while($modelObject = $this->toObject($statement)) {
                 yield $modelObject;

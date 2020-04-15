@@ -1,4 +1,36 @@
-# REPository Operator
+# REPository OPerator
+
+## Connection to database (.env supported)
+
+Prepare with `.env` file:
+
+    DATABASE_DRIVER=mysql
+    DATABASE_NAME=test
+    DATABASE_HOSTNAME=localhost
+    DATABASE_USERNAME=admin
+    DATABASE_PASSWORD=secret
+    DATABASE_PORT=3306
+
+Usage in `application.php` (w/ `.env`):
+
+    $connection = new JayBeeR\Repop\Connector\DatabaseConnector;
+    $connection->connectToDatabase();
+
+Usage in `application.php` (w/o `.env`):
+
+    $connection->connectToDatabase('mysql', 'localhost', 3306, 'test', 'admin', 'secret');
+    
+## Register Repository with current connection 
+
+**Usage:**
+
+    $connection->registerRepository({Repository model class}::class);
+
+## Use Repository with allocated connection 
+
+**Usage:**
+
+    $repository = DatabaseConnector::getRepository('{unique table name for repository}');
 
 ## Create Repository
 
@@ -87,7 +119,7 @@
 
             $this->ensureStatementExecution($statement);
 
-            return $this->commitToModelObjects($statement);
+            return $this->iterate($statement);
         }
 
 **Usage (reusable):**

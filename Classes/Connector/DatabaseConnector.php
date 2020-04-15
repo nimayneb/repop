@@ -23,7 +23,7 @@
         /**
          * @var RepositoryObject[]
          */
-        protected $repositories;
+        protected static $repositories;
 
         /**
          *
@@ -42,14 +42,16 @@
         }
 
         /**
-         * @param string $key
          * @param string $className
          *
          * @return DatabaseConnector
          */
-        public function addRepository(string $key, string $className): DatabaseConnector
+        public function registerRepository(string $className): DatabaseConnector
         {
-            $this->repositories[$key] = new $className($this);
+            /** @var RepositoryObject $repository */
+            $repository = new $className($this);
+
+            static::$repositories[$repository->getTable()] = $repository;
 
             return $this;
         }
@@ -60,13 +62,13 @@
          * @return RepositoryObject
          * @throws RepositoryNotFound
          */
-        public function getRepository(string $key): RepositoryObject
+        public static function getRepository(string $key): RepositoryObject
         {
-            if (!isset($this->repositories[$key])) {
+            if (!isset(static::$repositories[$key])) {
                 throw new RepositoryNotFound(sprintf('Cannot find repository key <%s> in DatabaseConnector.', $key));
             }
 
-            return $this->repositories[$key];
+            return static::$repositories[$key];
         }
 
         /**
