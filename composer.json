@@ -14,7 +14,7 @@
         "php": "^7.4",
         "doctrine/dbal": "^2.10",
         "helhum/dotenv-connector": "^2.1",
-        "ext-PDO": "^7.2",
-        "ext-pdo_mysql": "^7.2"
+        "ext-PDO": "^7.4",
+        "ext-pdo_mysql": "^7.4"
     }
 }
