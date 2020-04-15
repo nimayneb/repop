@@ -1,11 +1,13 @@
-<?php namespace JayBeeR\Repop\Repository {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Repository {
 
     /*
      * See LICENSE.txt that was shipped with this package.
      */
 
     use Closure;
-    use JayBeeR\Repop\Failure\UnknownParameterType;
+    use JayBeeR\Repop\Failure\UnknownTableColumnType;
     use PDO;
     use PDOStatement;
 
@@ -17,12 +19,12 @@
         /**
          * @var Closure[]
          */
-        private $dirtyParameters = [];
+        private array $dirtyParameters = [];
 
         /**
          * @var Closure[]
          */
-        private $dirtyColumns = [];
+        private array $dirtyColumns = [];
 
         /**
          *
@@ -61,39 +63,44 @@
          * @param $value
          *
          * @return int
-         * @throws UnknownParameterType
+         * @throws UnknownTableColumnType
          */
         public static function getType($value): int
         {
             $type = gettype($value);
 
             switch ($type) {
-                case 'integer': {
+                case 'integer':
+                {
                     $typeNum = PDO::PARAM_INT;
 
                     break;
                 }
 
-                case 'boolean': {
+                case 'boolean':
+                {
                     $typeNum = PDO::PARAM_BOOL;
 
                     break;
                 }
 
-                case 'string': {
+                case 'string':
+                {
                     $typeNum = PDO::PARAM_STR;
 
                     break;
                 }
 
-                case 'null': {
+                case 'null':
+                {
                     $typeNum = PDO::PARAM_NULL;
 
                     break;
                 }
 
-                default: {
-                    throw new UnknownParameterType();
+                default:
+                {
+                    throw new UnknownTableColumnType();
                 }
             }
 

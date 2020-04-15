@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Repop\Failure {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Failure {
 
     /*
      * See LICENSE.txt that was shipped with this package.
@@ -9,7 +11,7 @@
     /**
      *
      */
-    class UnknownParameterType extends Exception
+    class UnknownTableColumnType extends Exception
     {
     }
 }

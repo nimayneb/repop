@@ -11,7 +11,7 @@ namespace JayBeeR\Repop\Failure {
     /**
      *
      */
-    class RepositoryNotFound extends Exception
+    class WrongRepositoryObject extends Exception
     {
     }
-}
+} 

@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Repop\Repository\Operation {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Repository\Operation {
 
     /*
      * See LICENSE.txt that was shipped with this package.
@@ -19,7 +21,7 @@
         public function update(IdentifiedModelObject $modelObject)
         {
             $statement = $this->getConnection()->prepare(
-                "update `{$this->getTable()}` set {$modelObject->getDirtyColumns()} where `{$modelObject->getIdentifierName()}` = :identifier;"
+                "update `{$this->getTableName()}` set {$modelObject->getDirtyColumns()} where `{$modelObject->getIdentifierName()}` = :identifier;"
             );
 
             $identifier = $modelObject->getIdentifier();

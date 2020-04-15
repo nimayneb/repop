@@ -1,36 +1,53 @@
-<?php namespace JayBeeR\Repop\Connector {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Connector {
 
     /*
      * See LICENSE.txt that was shipped with this package.
      */
 
     use JayBeeR\Repop\Failure\RepositoryNotFound;
+    use JayBeeR\Repop\Failure\WrongRepositoryObject;
+    use JayBeeR\Repop\Repository\RepositoryAttributes;
     use JayBeeR\Repop\Repository\RepositoryObject;
     use PDO;
-    use PDOException;
 
     /**
-     * class DatabaseConnector
      *
      */
     class DatabaseConnector
     {
         /**
-         * @var PDO
+         * @var PDO|null
          */
-        protected $connection;
+        protected ?PDO $connection;
 
         /**
-         * @var RepositoryObject[]
+         * @var Object[]
          */
-        protected static $repositories;
+        protected static array $repositories;
 
         /**
+         * @param string $tableName
          *
+         * @return RepositoryObject
+         * @throws RepositoryNotFound
          */
-        public function __destruct()
+        public static function getRepository(string $tableName): RepositoryObject
         {
-            $this->connection = null;
+            if (!isset(static::$repositories[$tableName])) {
+                throw new RepositoryNotFound(sprintf('Cannot find repository table name <%s> in database connection.', $tableName));
+            }
+
+            return static::$repositories[$tableName];
+        }
+
+        /**
+         * @param PDO $connection
+         */
+        public function __construct(PDO $connection)
+        {
+            $this->connection = $connection;
         }
 
         /**
@@ -45,70 +62,28 @@
          * @param string $className
          *
          * @return DatabaseConnector
+         * @throws WrongRepositoryObject
          */
         public function registerRepository(string $className): DatabaseConnector
         {
-            /** @var RepositoryObject $repository */
+            /** @var RepositoryAttributes $repository */
             $repository = new $className($this);
 
-            static::$repositories[$repository->getTable()] = $repository;
+            if (!$repository instanceof RepositoryAttributes) {
+                throw new WrongRepositoryObject($className);
+            }
+
+            static::$repositories[$repository->getTableName()] = $repository;
 
             return $this;
         }
 
         /**
-         * @param string $key
          *
-         * @return RepositoryObject
-         * @throws RepositoryNotFound
          */
-        public static function getRepository(string $key): RepositoryObject
+        public function __destruct()
         {
-            if (!isset(static::$repositories[$key])) {
-                throw new RepositoryNotFound(sprintf('Cannot find repository key <%s> in DatabaseConnector.', $key));
-            }
-
-            return static::$repositories[$key];
-        }
-
-        /**
-         * @param string|null $driver
-         * @param string|null $hostname
-         * @param string|null $port
-         * @param string|null $database
-         * @param string|null $username
-         * @param string|null $password
-         */
-        public function connectToDatabase(
-            string $driver = null,
-            string $hostname = null,
-            string $port = null,
-            string $database = null,
-            string $username = null,
-            string $password = null
-        )
-        {
-            $dsn = sprintf(
-                '%s:host=%s;port=%d;dbname=%s',
-                $driver ?? getenv('DATABASE_DRIVER'),
-                $hostname ?? getenv('DATABASE_HOSTNAME'),
-                $port ?? getenv('DATABASE_PORT'),
-                $database ?? getenv('DATABASE_NAME')
-            );
-
-            try {
-                $this->connection = new PDO(
-                    $dsn,
-                    $username ?? getenv('DATABASE_USERNAME'),
-                    $password ?? getenv('DATABASE_PASSWORD')
-                );
-
-                $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e) {
-                fwrite(STDERR, sprintf("    Data Source Name: %s\n", $dsn));
-                fwrite(STDERR, sprintf("       Error message: %s\n\n", $e->getMessage()));
-                exit(1);
-            }
+            $this->connection = null;
         }
     }
 }

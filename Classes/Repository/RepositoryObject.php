@@ -1,10 +1,13 @@
-<?php namespace JayBeeR\Repop\Repository {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Repository {
 
     /*
      * See LICENSE.txt that was shipped with this package.
      */
 
     use Generator;
+    use JayBeeR\Repop\Connector\DatabaseConnector;
     use JayBeeR\Repop\Model\ModelObject;
     use JayBeeR\Repop\Repository\Operation\CreateOperation;
     use JayBeeR\Repop\Repository\Operation\DeleteOperation;
@@ -14,37 +17,40 @@
     use PDOStatement;
 
     /**
-     * Class RepositoryObject
      *
      */
-    abstract class RepositoryObject
+    abstract class RepositoryObject extends RepositoryAttributes
     {
-        use ConstructorWithConnector;
         use CreateOperation;
         use UpdateOperation;
         use DeleteOperation;
 
         /**
-         * @var string
-         */
-        protected static $table;
-
-        /**
-         * @var array
-         */
-        protected $columns = [];
-
-        /**
          * @var ModelObject[]
          */
-        protected $driedRepository;
+        protected array $driedRepository;
 
         /**
-         * @return string
+         * @var DatabaseConnector
          */
-        public static function getTableName(): string
+        protected DatabaseConnector $connector;
+
+        /**
+         * RepositoryObject constructor.
+         *
+         * @param DatabaseConnector $connector
+         */
+        public function __construct(DatabaseConnector $connector)
         {
-            return static::$table;
+            $this->connector = $connector;
+        }
+
+        /**
+         * @return PDO
+         */
+        protected function getConnection(): PDO
+        {
+            return $this->connector->getConnection();
         }
 
         /**
@@ -54,7 +60,7 @@
          */
         public function iterate(PDOStatement $statement): Generator
         {
-            while($modelObject = $this->toObject($statement)) {
+            while ($modelObject = $this->toObject($statement)) {
                 yield $modelObject;
             }
         }
@@ -66,20 +72,15 @@
          */
         protected function getObject(int $identifier)
         {
-            if (isset($this->driedRepository[$identifier])) {
-                return $this->driedRepository[$identifier];
-            }
-
-            // TODO: uid?
             $statement = $this->getConnection()->prepare(
-                "select {$this->buildTableColumnsStatement()} from `{$this->getTable()}` where `uid` = :identifier;"
+                "select {$this->buildTableColumnsStatement()} from `{$this->getTableName()}` where `{$this->getColumnNameOfUniqueIdentifier()}` = :identifier;"
             );
 
             $statement->bindParam(':identifier', $identifier, PDO::PARAM_INT);
 
             $this->ensureStatementExecution($statement);
 
-            return $this->driedRepository[$identifier] = $this->toObject($statement);
+            return $this->toObject($statement);
         }
 
         /**
@@ -89,7 +90,11 @@
          */
         public function byIdentifier(int $identifier): ?ModelObject
         {
-            return $this->getObject($identifier);
+            if (isset($this->driedRepository[$identifier])) {
+                return $this->driedRepository[$identifier];
+            }
+
+            return $this->driedRepository[$identifier] = $this->getObject($identifier);
         }
 
         /**
@@ -98,26 +103,6 @@
         protected function buildTableColumnsStatement(): string
         {
             return StatementHelper::buildTableColumnStatement($this->getTableColumns());
-        }
-
-        /**
-         * @param PDOStatement $statement
-         *
-         * @return mixed
-         */
-        abstract protected function toObject(PDOStatement $statement);
-
-        /**
-         * @return array
-         */
-        abstract protected function getTableColumns(): array;
-
-        /**
-         * @return string
-         */
-        public function getTable(): string
-        {
-            return static::$table;
         }
 
         /**

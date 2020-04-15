@@ -11,7 +11,7 @@ namespace JayBeeR\Repop\Repository {
          */
         public static function buildTableColumnStatement(array $columns): string
         {
-            return implode(', ', array_map(function(string $value) {
+            return implode(', ', array_map(function (string $value) {
                 return "`{$value}`";
             }, $columns));
         }

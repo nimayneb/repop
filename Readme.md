@@ -13,26 +13,37 @@ Prepare with `.env` file:
 
 Usage in `application.php` (w/ `.env`):
 
-    $connection = new JayBeeR\Repop\Connector\DatabaseConnector;
-    $connection->connectToDatabase();
+    $connection = JayBeeR\Repop\Connector\DatabaseFactory::connectToDatabase();
 
 Usage in `application.php` (w/o `.env`):
 
-    $connection->connectToDatabase('mysql', 'localhost', 3306, 'test', 'admin', 'secret');
+    $connection = JayBeeR\Repop\Connector\DatabaseFactory::connectToDatabase(
+        'mysql',
+        'localhost',
+        3306,
+        'test',
+        'admin',
+        'secret'
+    );
     
 ## Register Repository with current connection 
 
+The given class must be extended from abstract JayBeeR\Repop\Repository\RepositoryAttributes.
+
 **Usage:**
 
+    $connection = JayBeeR\Repop\Connector\DatabaseFactory::connectToDatabase();
     $connection->registerRepository({Repository model class}::class);
 
 ## Use Repository with allocated connection 
 
 **Usage:**
 
-    $repository = DatabaseConnector::getRepository('{unique table name for repository}');
+    $repository = Repository::getRepository('{unique table name for repository}');
 
 ## Create Repository
+
+If the name is ambiguous (like singular), use "s", "Container" as a postfix.
 
 **Template:**
 
@@ -49,7 +60,7 @@ Usage in `application.php` (w/o `.env`):
         /**
          * @var string
          */
-        protected static $table = '{table name}';
+        protected static $tableName = '{table name}';
 
 ---
 
@@ -69,19 +80,7 @@ Usage in `application.php` (w/o `.env`):
 
 ### Specified the creation of a model object
 
-**Usage (PHP <= 7.3):**
-
-        /**
-         * @param PDOStatement $statement
-         *
-         * @return {model class}|JayBeeR\Repop\Model\ModelObject
-         */
-        protected function toObject(PDOStatement $statement): JayBeeR\Repop\Model\ModelObject
-        {
-            return {static model class}::fromResult($statement);
-        }
-
-**Usage (PHP >= 7.4 - invariant return types):**
+**Usage:**
 
         /**
          * @param PDOStatement $statement
@@ -144,6 +143,8 @@ Usage in `application.php` (w/o `.env`):
 
 ## Create Model class
 
+If the name is ambiguous (like plural), use "Single", "Item", "Piece" as a postfix.
+
 **Template:**
 
     class {model name in singular} extends JayBeeR\Repop\Model\ModelObject
@@ -168,43 +169,12 @@ Usage in `application.php` (w/o `.env`):
 - int
 - bool
 
-**Usage (PHP <= 7.3):**
-
-        /**
-         * {Description}
-         *
-         * @var {column type}
-         */
-        protected ${column name};
-
-**Usage (PHP >= 7.4 - property types):**
+**Usage:**
 
         /**
          * {Description}
          */
         protected {column type} ${column name};
-
----
-
-### Initialize column type (only for PHP <= 7.3)
-
-**Possible types:**
-
-- string
-- float
-- int
-- bool
-
-**Usage:**
-
-        /**
-         *
-         */
-        public function __construct()
-        {
-            settype($this->{column name}, '{column type}');
-            ...
-        }
 
 ---
 
@@ -257,19 +227,7 @@ Usage in `application.php` (w/o `.env`):
 
 ### Add static method to create this model class by PDOStatement 
 
-**Usage (PHP <= 7.3):**
-
-        /**
-         * @param PDOStatement $statement
-         *
-         * @return {ModelClass}|JayBeeR\Repop\Model\ModelObject|null
-         */
-        public static function fromResult(PDOStatement $statement): ?JayBeeR\Repop\Model\ModelObject
-        {
-            return static::get($statement);
-        }
-
-**Usage (PHP >= 7.4 - invariant return types):**
+**Usage:**
 
         /**
          * @param PDOStatement $statement

@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Repop\Model {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Model {
 
     /*
      * See LICENSE.txt that was shipped with this package.

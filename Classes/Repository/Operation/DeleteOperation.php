@@ -1,4 +1,6 @@
-<?php namespace JayBeeR\Repop\Repository\Operation {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Repository\Operation {
 
     /*
      * See LICENSE.txt that was shipped with this package.
@@ -18,7 +20,7 @@
         public function delete(IdentifiedModelObject $modelObject)
         {
             $statement = $this->getConnection()->prepare(
-                "delete from `{$this->getTable()}` where `{$modelObject->getIdentifierName()}` = :identifier;"
+                "delete from `{$this->getTableName()}` where `{$modelObject->getIdentifierName()}` = :identifier;"
             );
 
             $this->ensureStatementExecution($statement, $modelObject);

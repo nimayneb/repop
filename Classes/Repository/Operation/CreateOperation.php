@@ -1,10 +1,12 @@
-<?php namespace JayBeeR\Repop\Repository\Operation {
+<?php declare(strict_types=1);
+
+namespace JayBeeR\Repop\Repository\Operation {
 
     /*
      * See LICENSE.txt that was shipped with this package.
      */
 
-    use JayBeeR\Repop\Failure\UnknownParameterType;
+    use JayBeeR\Repop\Failure\UnknownTableColumnType;
     use JayBeeR\Repop\Model\IdentifiedModelObject;
     use JayBeeR\Repop\Repository\Persistence;
     use PDO;
@@ -17,7 +19,7 @@
         /**
          * @param IdentifiedModelObject $modelObject
          *
-         * @throws UnknownParameterType
+         * @throws UnknownTableColumnType
          */
         public function insert(IdentifiedModelObject $modelObject)
         {
@@ -40,7 +42,7 @@
             $columnParameterList = implode(', ', $columnParameters);
 
             $statement = $this->getConnection()->prepare(
-                "insert into `{$this->getTable()}` ({$columnNameList}) values ({$columnParameterList});"
+                "insert into `{$this->getTableName()}` ({$columnNameList}) values ({$columnParameterList});"
             );
 
             foreach ($columnValues as $columnName => $columnValue) {
